@@ -2,7 +2,7 @@ version: "3.8"
 services:
   ptrader:
     image: ptrader
-    build: .
+    build: ./backend
     secrets:
         - db_password
         - cert
@@ -13,7 +13,7 @@ services:
       - 8000:8000
 ptrader-frontend:
     image: ptrader-frontend
-    build: .
+    build: ./frontend
     ports:
         - 8001:80
 
