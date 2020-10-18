@@ -1,0 +1,7 @@
+version: "3.8"
+services:
+  ptrader-frontend:
+    image: ptrader-frontend
+    build: .
+    ports:
+        - 80:80
