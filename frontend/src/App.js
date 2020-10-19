@@ -32,7 +32,14 @@ const darkTheme = createMuiTheme({
 //     color: 'white'
 //   },
 // }));
+// let url
+// if(process.env.NODE_ENV === 'development') {
+//   url = 'ws://localhost'
+// }
 
+// if(process.env.NODE_ENV === 'production') {
+//   url = `wss://pine64`
+// }
 
 let ws
 const db = new Dexie('ptrader')
@@ -57,7 +64,7 @@ function App() {
 
   useEffect(() => {
     if(!connected){
-      ws = new WebSocket("ws://localhost:8000/ws")
+      ws = new WebSocket("wss://pine64:8000/ws")
       ws.onopen = async () => {
 
         ws.onmessage = async (event) => {

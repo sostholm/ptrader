@@ -10,12 +10,12 @@ VAPID_PUBLIC_KEY = None
 if 'VAPID_PKEY' in os.environ:
     VAPID_PRIVATE_KEY = os.environ["VAPID_PKEY"]
 else:
-    VAPID_PRIVATE_KEY = open('/run/secrets/vapid_key_txt', "r+").readline().strip("\n")
+    VAPID_PRIVATE_KEY = open('/app/secrets/private_key.txt', "r").readline().strip("\n")
 
 if 'VAPID_PUBLIC_KEY' in os.environ:
     VAPID_PRIVATE_KEY = os.environ["VAPID_PUBLIC_KEY"]
 else:
-    VAPID_PUBLIC_KEY = open('/run/secrets/vapid_public_key_txt', "r+").read().strip("\n")
+    VAPID_PUBLIC_KEY = open('/app/secrets/public_key.txt', "r").read().strip("\n")
 
 VAPID_CLAIMS = {
 "sub": "mailto:eekoren@hotmail.com"

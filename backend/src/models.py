@@ -21,7 +21,7 @@ PASSWORD = None
 if 'PASSWORD' in os.environ:
     PASSWORD = os.environ["PASSWORD"]
 else:
-    with open('/run/secrets/db_password', 'r') as file:
+    with open('/app/secrets/db_password', 'r') as file:
         PASSWORD = file.read().replace('\n', '')
 
 
