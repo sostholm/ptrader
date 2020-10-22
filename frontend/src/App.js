@@ -41,6 +41,7 @@ const darkTheme = createMuiTheme({
 //   url = `wss://pine64`
 // }
 
+
 let ws
 const db = new Dexie('ptrader')
 
@@ -56,6 +57,46 @@ function App() {
   const [balance, setBalance] = useState()
   const [connected, setConnected] = useState(false)
 
+  function connect(){
+    ws = new WebSocket("wss://pine64:8000/ws")
+    ws.onopen = async () => {
+  
+      ws.onmessage = async (event) => {
+        console.log(event.data);
+        let message = JSON.parse(event.data)
+        if('id' in message){
+          let id = message.id
+          await db.receiveQueue.add({
+            id: id,
+            payload: message.payload,
+          })
+        }
+        if('put' in message){
+          Object.keys(message.payload).map(table => {
+            message.payload[table].map(entry => db[table].put(entry))
+          })
+        }
+        if('delete' in message){
+          Object.keys(message.payload).map(table => {
+            message.payload[table].map(entry => db[table].delete(entry.id))
+          })
+        }
+      }
+  
+      ws.onclose = (event) => {
+        if (event.wasClean) {
+          alert(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
+          setLoggedIn(false, setConnected(false))
+        } else {
+          // e.g. server process killed or network down
+          // event.code is usually 1006 in this case
+          setLoggedIn(false, setConnected(false))
+          alert('[close] Connection died');
+        }
+      }
+    }
+  }
+
   useEffect(() => {
     if(!loggedIn && view !== 'Login'){
       setView('Login')
@@ -64,45 +105,15 @@ function App() {
 
   useEffect(() => {
     if(!connected){
-      ws = new WebSocket("wss://pine64:8000/ws")
-      ws.onopen = async () => {
-
-        ws.onmessage = async (event) => {
-          console.log(event.data);
-          let message = JSON.parse(event.data)
-          if('id' in message){
-            let id = message.id
-            await db.receiveQueue.add({
-              id: id,
-              payload: message.payload,
-            })
-          }
-          if('put' in message){
-            Object.keys(message.payload).map(table => {
-              message.payload[table].map(entry => db[table].put(entry))
-            })
-          }
-          if('delete' in message){
-            Object.keys(message.payload).map(table => {
-              message.payload[table].map(entry => db[table].delete(entry.id))
-            })
-          }
-        }
-
-        ws.onclose = (event) => {
-          if (event.wasClean) {
-            alert(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
-            setLoggedIn(false, setConnected(false))
-          } else {
-            // e.g. server process killed or network down
-            // event.code is usually 1006 in this case
-            setLoggedIn(false, setConnected(false))
-            alert('[close] Connection died');
-          }
-        }
-      }
+      connect()
     }
   },[connected])
+
+  const connectOnFocus = () =>{
+    if(!connected){
+      connect()
+    }
+  }
 
   const get_query = async (payload) => {
     let id = Math.floor(Math.random() * Math.floor(100000000))
@@ -134,7 +145,7 @@ function App() {
   ]
 
   return (
-    <div className="App">
+    <div className="App" onFocus>
       
       <div className="App-header">
       <ThemeProvider theme={darkTheme}>
